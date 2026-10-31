@@ -1,3 +1,67 @@
+import streamlit as st
+import extra_streamlit_components as stx
+from supabase import create_client
+from datetime import date
+import uuid
+
+st.set_page_config(page_title="천원의 아침밥 수량 확인", page_icon="🍎", layout="centered")
+st.title("🍎 천원의 아침밥 수량 확인")
+st.caption("가상 구매 시연용입니다. 실제 학교 판매 시스템과 연결되어 있지 않습니다.")
+
+
+@st.cache_resource
+def get_db():
+    return create_client(
+        st.secrets["supabase"]["url"],
+        st.secrets["supabase"]["anon_key"]
+    )
+
+
+try:
+    db = get_db()
+except Exception as e:
+    st.error("Supabase 연결 정보가 필요합니다. 앱 설정의 Secrets에 URL과 anon key를 입력해 주세요.")
+    st.caption(f"오류 내용: {e}")
+    st.stop()
+
+
+cookies = stx.CookieManager(key="demo_cookie")
+user_id = cookies.get("breakfast_demo_user_id")
+
+if not user_id:
+    user_id = str(uuid.uuid4())
+    cookies.set("breakfast_demo_user_id", user_id)
+    st.info("시연용 사용자 ID를 만들었습니다. 페이지를 새로고침한 뒤 이용해 주세요.")
+    st.stop()
+
+
+today = date.today().isoformat()
+
+
+def counts():
+    result = db.rpc("get_breakfast_counts", {"p_service_date": today}).execute().data
+    return int(result["total_quantity"]), int(result["sold_quantity"])
+
+
+def has_purchased():
+    result = db.rpc(
+        "has_demo_purchased",
+        {"p_demo_user_id": user_id, "p_service_date": today}
+    ).execute().data
+    return bool(result)
+
+
+try:
+    total, sold = counts()
+    purchased = has_purchased()
+except Exception as e:
+    st.error("데이터베이스 설정을 확인해 주세요. Supabase에서 supabase_setup.sql을 실행했는지 확인하세요.")
+    st.caption(f"오류 내용: {e}")
+    st.stop()
+
+
+remaining = max(total - sold, 0)
+a, b, c = st.columns(3)
 a.metric("총수량", f"{total}개")
 b.metric("가상 판매 수량", f"{sold}개")
 c.metric("잔여 수량", f"{remaining}개")
