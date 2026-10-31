@@ -9,7 +9,7 @@ st.title("🍎 천원의 아침밥 수량 확인")
 st.caption("가상 구매 시연용입니다. 실제 학교 판매 시스템과 연결되어 있지 않습니다.")
 
 @st.cache_resource
-def get_db():streamlit\nsupabase\nextra-streamlit-components\n
+def get_db():
     return create_client(st.secrets["supabase"]["url"], st.secrets["supabase"]["anon_key"])
 
 try:
@@ -90,28 +90,3 @@ if st.button("수량 새로고침", use_container_width=True):
 
 st.caption("다른 사용자의 구매는 수량 새로고침 버튼을 눌러 반영할 수 있습니다.")
 st.caption("주의: 로그인 없는 시연용 제한입니다. 쿠키 삭제 또는 다른 브라우저 사용으로 우회할 수 있으며 실제 구매 제한 용도로 사용할 수 없습니다.")
-
-천원의 아침밥 공유 수량 시연 앱
-
-포함 파일:
-- app.py: Streamlit 웹 앱
-- requirements.txt: 필요한 라이브러리
-- supabase_setup.sql: 데이터베이스 설정 SQL
-
-설정 순서
-1. https://supabase.com 에서 새 프로젝트를 만듭니다.
-2. Supabase의 SQL Editor에서 supabase_setup.sql 전체를 실행합니다.
-3. Project URL과 anon/public key를 복사합니다. service_role 키는 사용하거나 공개하지 마세요.
-4. Streamlit Community Cloud 앱의 Settings > Secrets에 다음 형식으로 입력합니다.
-
-[supabase]
-url = "https://YOUR_PROJECT.supabase.co"
-anon_key = "YOUR_SUPABASE_ANON_KEY"
-
-5. app.py와 requirements.txt를 GitHub 저장소 최상위 폴더에 올리고 Streamlit Community Cloud에서 app.py를 배포합니다.
-
-주의
-- 실제 판매 시스템과 연결되지 않은 가상 구매 시연용입니다.
-- 로그인 없는 1회 제한은 브라우저 쿠키 ID를 사용합니다. 쿠키 삭제, 다른 브라우저/기기 사용으로 우회할 수 있어 실제 구매 제한 용도로는 부적합합니다.
-- 수량 새로고침은 현재 수동입니다. 자동 주기 갱신은 추가 개발할 수 있습니다.
-- 관리자용 수량 수정 기능은 포함되어 있지 않습니다.
