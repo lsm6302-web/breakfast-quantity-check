@@ -1,1 +1,1 @@
-streamlit
+streamlit\nsupabase\nextra-streamlit-components\n
