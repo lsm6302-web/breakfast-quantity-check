@@ -85,6 +85,34 @@ else:
             st.error("구매 처리에 실패했습니다. Supabase 설정을 확인해 주세요.")
             st.caption(str(e))
 
+
+st.divider()
+st.subheader("관리자 메뉴")
+st.caption("관리자 비밀번호를 입력하면 오늘의 가상 구매 기록을 초기화할 수 있습니다.")
+
+try:
+    admin_password = st.secrets["admin"]["password"]
+except Exception:
+    admin_password = None
+
+if not admin_password:
+    st.warning("관리자 비밀번호가 설정되지 않았습니다. 앱 Secrets에 [admin] password를 추가해 주세요.")
+else:
+    entered_password = st.text_input("관리자 비밀번호", type="password", key="admin_password_input")
+    if entered_password == admin_password:
+        st.warning("초기화하면 오늘 날짜의 모든 가상 구매 기록이 삭제됩니다.")
+        confirm_reset = st.checkbox("오늘의 구매 기록을 모두 삭제하는 것에 동의합니다.", key="confirm_reset")
+        if st.button("오늘 수량 초기화", type="secondary", disabled=not confirm_reset, use_container_width=True):
+            try:
+                db.rpc("reset_demo_purchases", {"p_service_date": today, "p_admin_password": entered_password}).execute()
+                st.success("오늘의 가상 구매 기록을 초기화했습니다.")
+                st.rerun()
+            except Exception as e:
+                st.error("초기화에 실패했습니다. Supabase에서 reset_demo_purchases SQL 함수를 생성했는지 확인해 주세요.")
+                st.caption(str(e))
+    elif entered_password:
+        st.error("관리자 비밀번호가 올바르지 않습니다.")
+
 if st.button("수량 새로고침", use_container_width=True):
     st.rerun()
 
